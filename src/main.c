@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <gst/gst.h>
 
 #define CHECK_GST_SET_STATE(gst_state, error_str)    \
@@ -57,7 +58,7 @@ static GstElement *build_pipeline(gchar *input_location, gchar *output_location)
                ! queue ! nvinfer config-file-path=/workspace/config/config_infer_primary_facedetectir.txt \
                ! queue ! nvtracker ll-lib-file=/opt/nvidia/deepstream/deepstream/lib/libnvds_nvmultiobjecttracker.so ll-config-file=/workspace/config/config_tracker_NvDCF_accuracy.yml tracker-width=1920 tracker-height=1088 \
                ! nvstreamdemux name=demux \
-               demux.src_0 ! queue ! nvdsosd ! videoconvert ! nvv4l2h264enc ! h264parse ! qtmux ! filesink location=%s";
+               demux.src_0 ! queue ! nvdsosd ! nvvideoconvert ! facetracker output-resolution=1920x1080 ! nvvideoconvert ! video/x-raw(memory:NVMM), format=(string)NV12 ! nvv4l2h264enc ! h264parse ! qtmux ! filesink location=%s";
     gchar pipeline_str[4096];
 
     int n = snprintf(pipeline_str, sizeof(pipeline_str), pipeline_format_str, input_location, output_location);
